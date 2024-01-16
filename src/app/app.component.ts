@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NavBarComponent } from "./spotify/shared/components/nav-bar/nav-bar.component";
 
 @Component({
@@ -8,7 +8,7 @@ import { NavBarComponent } from "./spotify/shared/components/nav-bar/nav-bar.com
     standalone: true,
     templateUrl: './app.component.html',
     styleUrl: './app.component.css',
-    imports: [CommonModule, RouterOutlet, NavBarComponent]
+    imports: [CommonModule, RouterOutlet, NavBarComponent, RouterLink, RouterLinkActive]
 })
 export class AppComponent {
   title = 'SpotiApp';

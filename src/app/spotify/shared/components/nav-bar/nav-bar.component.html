@@ -29,7 +29,8 @@
 <nav class="navbar bg-dark border-bottom border-body navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
     <div class="container-fluid">
         <a class="navbar-brand" style="margin-left: 1rem;" href="#">
-            <img style="margin-right: 5px;" src="https://upload.wikimedia.org/wikipedia/commons/7/74/Spotify_App_Logo.svg" width="30" height="30"
+            <img style="margin-right: 5px;"
+                src="https://upload.wikimedia.org/wikipedia/commons/7/74/Spotify_App_Logo.svg" width="30" height="30"
                 class="d-inline-block align-top" alt="">
             SpotiWeb
         </a>
@@ -43,13 +44,18 @@
                     <a class="nav-link active" aria-current="page" href="#">Home</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                    <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                         Search By
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Artist</a></li>
-                        <li><a class="dropdown-item" href="#">Song</a></li>
+                        <li>
+                            <a class="dropdown-item"
+                            routerLink="/search/artist">Artist</a></li>
+                        <li>
+                        <a class="dropdown-item"
+                        routerLink="/search/songs"
+                        >Song</a></li>
                     </ul>
                 </li>
             </ul>

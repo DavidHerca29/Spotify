@@ -7,8 +7,8 @@ import { SpotiToken } from '../interfaces/spotify.interfaces';
   providedIn: 'root',
 })
 export class SpotifyService {
-  private clientId: string = '6cb0905e835c4b25be3a750520743a5e';
-  private clientSecret: string = 'c2e235b40f2847a2a510ec5fe97aea88';
+  private clientId: string = '8ebc4d8ca0f8437eb99e513dc8613420';
+  private clientSecret: string = 'f0037e5902934b069a8c725e9e7e0e66';
   tokenUrl: string = 'https://accounts.spotify.com/api/token';
   idAndSecret: string = btoa(this.clientId + ':' + this.clientSecret);
   private token: string = '';
@@ -18,9 +18,6 @@ export class SpotifyService {
 
   constructor(private httpClient: HttpClient) {}
 
-  // body = {
-  //     'grant_type': "client_credentials",
-  // };
   body = 'grant_type=client_credentials';
 
   options = {
