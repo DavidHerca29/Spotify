@@ -14,6 +14,8 @@ export class SpotifyService {
   private token: string = '';
   http: any;
 
+  private _songsHistory : string[] = [];
+
   constructor(private httpClient: HttpClient) {}
 
   // body = {
@@ -48,5 +50,32 @@ export class SpotifyService {
     return this.httpClient
       .post<SpotiToken>(url, this.body, this.options)
       .pipe(catchError(() => of(null)));
+  }
+
+  saveSongsLocalStorage() {
+    localStorage.setItem('songs_history', JSON.stringify( this._songsHistory ));
+  }
+
+  get songsHistory(): string[] {
+    return [...this._songsHistory];
+  }
+
+  getSongFromLocalStorage(): string[] {
+    if (localStorage.getItem('songs_history')) {
+      this._songsHistory = JSON.parse(localStorage.getItem('songs_history')!);
+    }
+    return this._songsHistory;
+  }
+
+  private organizeSongsHistory(song:string){
+    song = song.toLocaleLowerCase();
+
+    //case: si ya está el tag
+    if (this._songsHistory.includes(song)){
+      this._songsHistory = this._songsHistory.filter((oldSong) => oldSong !== song);
+    }
+    this._songsHistory.unshift(song);
+    this._songsHistory = this._songsHistory.splice(0,10);
+    this.saveSongsLocalStorage();
   }
 }
