@@ -12,7 +12,6 @@ export class SpotifyService {
   tokenUrl: string = 'https://accounts.spotify.com/api/token';
   idAndSecret: string = btoa(this.clientId + ':' + this.clientSecret);
   private token: string = '';
-  http: any;
 
   private _songsHistory : string[] = [];
 
@@ -75,4 +74,6 @@ export class SpotifyService {
     this._songsHistory = this._songsHistory.splice(0,10);
     this.saveSongsLocalStorage();
   }
+
+  
 }

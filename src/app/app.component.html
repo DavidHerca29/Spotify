@@ -1,6 +1,11 @@
 <div class="row">
-    <shared-nav-bar></shared-nav-bar>
-</div>
-<div class="row">
-  <router-outlet></router-outlet>
+  <shared-nav-bar></shared-nav-bar>
+  <div class="row mt-4">
+    <div class="col-3">
+      <shared-sidebar></shared-sidebar>
+    </div>
+    <div class="col">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
 </div>
