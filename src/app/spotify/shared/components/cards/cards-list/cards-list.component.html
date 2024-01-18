@@ -1,1 +1,7 @@
-<p>cards-list works!</p>
+<div class="row">
+  @for (albumItem of albums; track $index) {
+  <div class="col-md-4 col-sm-12">
+    <album-card [albumItem]="albumItem"></album-card>
+  </div>
+  }
+</div>

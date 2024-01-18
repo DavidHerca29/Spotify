@@ -1,17 +1,22 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map, of } from 'rxjs';
-import { SpotiToken } from '../interfaces/spotify.interfaces';
+import { Observable, catchError, of, switchMap } from 'rxjs';
+import { SpotiToken } from '../interfaces/spotify-tokens.interfaces';
+import { NewRealeses, Item } from '../interfaces/spotify-newrealeses.interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SpotifyService {
+  
+  public NewReleases: Item[] = [];
+  
   private clientId: string = '8ebc4d8ca0f8437eb99e513dc8613420';
   private clientSecret: string = 'f0037e5902934b069a8c725e9e7e0e66';
-  tokenUrl: string = 'https://accounts.spotify.com/api/token';
-  idAndSecret: string = btoa(this.clientId + ':' + this.clientSecret);
+  private tokenUrl: string = 'https://accounts.spotify.com/api/token';
+  private idAndSecret: string = btoa(this.clientId + ':' + this.clientSecret);
   private token: string = '';
+  private apiUrl = 'https://api.spotify.com/v1';
 
   private _songsHistory : string[] = [];
 
@@ -25,21 +30,6 @@ export class SpotifyService {
       'Content-Type': 'application/x-www-form-urlencoded',
     }),
   };
-
-  getAccessToken_(): string {
-    const url = this.tokenUrl;
-    this.httpClient
-      .post<SpotiToken>(url, this.body, this.options)
-      .pipe(
-        map((response) => response.access_token),
-        catchError(() => of(''))
-      )
-      .subscribe((token) => {
-        this.token = token;
-      });
-
-    return this.token;
-  }
 
   getAccessToken(): Observable<SpotiToken | null> {
     const url = this.tokenUrl;
@@ -74,6 +64,36 @@ export class SpotifyService {
     this._songsHistory = this._songsHistory.splice(0,10);
     this.saveSongsLocalStorage();
   }
+
+  getNewReleases(): void {
+    this.getAccessToken()
+      .pipe(
+        catchError(() => of(null)),
+        switchMap((token: SpotiToken | null) => {
+          if (token) {
+            console.log('Token obtenido:', token);
+            const headers = new HttpHeaders({
+              Authorization: `Bearer ${token.access_token}`,
+            });
+  
+            return this.httpClient
+              .get<NewRealeses>(`${this.apiUrl}/browse/new-releases`, { headers })
+              .pipe(catchError(() => of(null)));
+          } else {
+            return of(null);
+          }
+        })
+      )
+      .subscribe((newReleases: NewRealeses | null) => {
+        if (newReleases) {
+          this.NewReleases = newReleases.albums.items;
+          console.log(newReleases);
+        } else {
+          // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
+        }
+      });
+  }
+  
 
   
 }
