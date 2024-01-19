@@ -17,7 +17,7 @@ export class SidebarComponent {
 
     constructor(private spotifyService: SpotifyService, private router: Router ) { }
 
-    onInit(): void {
+    ngOnInit(): void {
         //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
         //Add 'implements OnInit' to the class.
         this.spotifyService.getSearchHistory();
