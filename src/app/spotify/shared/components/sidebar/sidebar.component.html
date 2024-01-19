@@ -1,6 +1,22 @@
 <div class="border-end border-dark ps-4 pe-4" id="sidebar">
-  <h2 class="text-dark">Last Search</h2>
-  <hr class="text-dark" />
+    <h2 class="text-dark">Last Search</h2>
+    <hr class="text-dark" />
 
-  <div class="list-group list-reset"></div>
+    <div class="list-group list-reset">
+        @for (search of searchHistory; track $index) {
+        @if (search.path === "search/songs") {
+        <button (click)="onClickSearch(search.search, search.path)" 
+            class="list-group-item list-group-item-action">
+            {{'Track - '+(search.search| titlecase)}}
+        </button>
+        }
+        @else {
+        <button (click)="onClickSearch(search.search, search.path)" 
+            class="list-group-item list-group-item-action">
+            {{'Artist - '+(search.search | titlecase)}}
+        </button>
+        }
+        }
+
+    </div>
 </div>

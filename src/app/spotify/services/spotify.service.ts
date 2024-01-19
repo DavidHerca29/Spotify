@@ -1,22 +1,27 @@
-import { HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, of, switchMap } from 'rxjs';
 import { SpotiToken } from '../interfaces/spotify-tokens.interfaces';
-import { NewRealeses, Album, Albums, SearchResults, SongsSearch, SongItem} from '../interfaces/spotify-albums.interfaces';
+import {
+  NewRealeses,
+  Album,
+  Albums,
+  SearchResults,
+} from '../interfaces/spotify-albums.interfaces';
 import { ArtistSearch } from '../interfaces/spotify-searchArtist.interfaces';
+import { SearchHistory } from '../interfaces/search-history.interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SpotifyService {
-  
   public NewReleases: Album[] = [];
   public searchSongs: Album[] = [];
   public artistAlbums: Album[] = [];
   public tracks: Album[] = [];
   public albums: Album[] = [];
   private artistId: string = '';
-  
+
   private clientId: string = '8ebc4d8ca0f8437eb99e513dc8613420';
   private clientSecret: string = 'f0037e5902934b069a8c725e9e7e0e66';
   private tokenUrl: string = 'https://accounts.spotify.com/api/token';
@@ -24,7 +29,7 @@ export class SpotifyService {
   private token: string = '';
   private apiUrl = 'https://api.spotify.com/v1';
 
-  private _songsHistory : string[] = [];
+  public searchHistory: SearchHistory[] = [];
 
   constructor(private httpClient: HttpClient) {}
 
@@ -44,31 +49,31 @@ export class SpotifyService {
       .pipe(catchError(() => of(null)));
   }
 
-  saveSongsLocalStorage() {
-    localStorage.setItem('songs_history', JSON.stringify( this._songsHistory ));
+  private saveSearchHistory() {
+    localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory));
   }
 
-  get songsHistory(): string[] {
-    return [...this._songsHistory];
-  }
-
-  getSongFromLocalStorage(): string[] {
-    if (localStorage.getItem('songs_history')) {
-      this._songsHistory = JSON.parse(localStorage.getItem('songs_history')!);
+  public getSearchHistory() {
+    let searchHistory = localStorage.getItem('searchHistory');
+    if (searchHistory) {
+      this.searchHistory = JSON.parse(searchHistory);
     }
-    return this._songsHistory;
   }
 
-  private organizeSongsHistory(song:string){
-    song = song.toLocaleLowerCase();
+  public organizeSearchHistory(search: string, path: string) {
+    search = search.toLocaleLowerCase().trim();
 
-    //case: si ya está el tag
-    if (this._songsHistory.includes(song)){
-      this._songsHistory = this._songsHistory.filter((oldSong) => oldSong !== song);
+    //check if search is already in history, if that is the case, remove it and add it to the top. Else, add it to the top
+    let index = this.searchHistory.findIndex(
+      (element) => element.search === search && element.path === path
+    );
+    if (index !== -1) {
+      this.searchHistory.splice(index, 1);
     }
-    this._songsHistory.unshift(song);
-    this._songsHistory = this._songsHistory.splice(0,10);
-    this.saveSongsLocalStorage();
+    this.searchHistory.unshift({ search, path });
+    
+    //save history in local storage
+    this.saveSearchHistory();
   }
 
   getNewReleases(): void {
@@ -80,9 +85,11 @@ export class SpotifyService {
             const headers = new HttpHeaders({
               Authorization: `Bearer ${token.access_token}`,
             });
-  
+
             return this.httpClient
-              .get<NewRealeses>(`${this.apiUrl}/browse/new-releases`, { headers })
+              .get<NewRealeses>(`${this.apiUrl}/browse/new-releases`, {
+                headers,
+              })
               .pipe(catchError(() => of(null)));
           } else {
             return of(null);
@@ -99,25 +106,29 @@ export class SpotifyService {
   }
 
   searchForArtist(artistName: string): Observable<ArtistSearch | null> {
-    return this.getAccessToken()
-      .pipe(
-        catchError(() => of(null)),
-        switchMap((token: SpotiToken | null) => {
-          if (token) {
-            const headers = new HttpHeaders({
-              Authorization: `Bearer ${token.access_token}`,
-            });
+    return this.getAccessToken().pipe(
+      catchError(() => of(null)),
+      switchMap((token: SpotiToken | null) => {
+        if (token) {
+          const headers = new HttpHeaders({
+            Authorization: `Bearer ${token.access_token}`,
+          });
 
-            const params = new HttpParams().set('q', artistName).set('type', 'artist');
+          const params = new HttpParams()
+            .set('q', artistName)
+            .set('type', 'artist');
 
-            return this.httpClient
-              .get<ArtistSearch>(`${this.apiUrl}/search`, { 'headers': headers, params: params })
-              .pipe(catchError(() => of(null)));
-          } else {
-            return of(null);
-          }
-        })
-      );
+          return this.httpClient
+            .get<ArtistSearch>(`${this.apiUrl}/search`, {
+              headers: headers,
+              params: params,
+            })
+            .pipe(catchError(() => of(null)));
+        } else {
+          return of(null);
+        }
+      })
+    );
   }
 
   searchForSong(songName: string): void {
@@ -131,10 +142,14 @@ export class SpotifyService {
             });
 
             const params = new HttpParams()
-            .set('q', songName).set('type', 'track');
-  
+              .set('q', songName)
+              .set('type', 'track');
+
             return this.httpClient
-              .get<SearchResults>(`${this.apiUrl}/search`, { headers: headers, params: params })
+              .get<SearchResults>(`${this.apiUrl}/search`, {
+                headers: headers,
+                params: params,
+              })
               .pipe(catchError(() => of(null)));
           } else {
             return of(null);
@@ -147,13 +162,14 @@ export class SpotifyService {
           for (let i = 0; i < songsSearch.tracks.items.length; i++) {
             this.searchSongs.push(songsSearch.tracks.items[i].album);
           }
+          this.organizeSearchHistory(songName, 'search/songs');
         } else {
           // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
         }
       });
   }
-  
-  getArtistAlbums(artistId: string): void {
+
+  getArtistAlbums(artistId: string, artistName: string): void {
     this.getAccessToken()
       .pipe(
         catchError(() => of(null)),
@@ -162,9 +178,11 @@ export class SpotifyService {
             const headers = new HttpHeaders({
               Authorization: `Bearer ${token.access_token}`,
             });
-  
+
             return this.httpClient
-              .get<Albums>(`${this.apiUrl}/artists/${artistId}/albums`, { headers })
+              .get<Albums>(`${this.apiUrl}/artists/${artistId}/albums`, {
+                headers,
+              })
               .pipe(catchError(() => of(null)));
           } else {
             return of(null);
@@ -173,12 +191,12 @@ export class SpotifyService {
       )
       .subscribe((artistAlbums: Albums | null) => {
         if (artistAlbums) {
+        this.artistAlbums = [];
           this.artistAlbums = artistAlbums.items;
+          this.organizeSearchHistory(artistName, 'search/artist');
         } else {
           // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
         }
       });
-
   }
-
 }
