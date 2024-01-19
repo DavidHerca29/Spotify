@@ -1,61 +1,54 @@
+export interface NewRealeses {
+    albums: Albums;
+}
+
+export interface Albums {
+    href:     string;
+    items:    Album[];
+    limit:    number;
+    next:     string;
+    offset:   number;
+    previous: null;
+    total:    number;
+}
+
 export interface Album {
-    album_type:             string;
+    album_type:             AlbumTypeEnum;
     artists:                Artist[];
-    available_markets:      any[];
-    copyrights:             Copyright[];
-    external_ids:           ExternalIDS;
+    available_markets:      string[];
     external_urls:          ExternalUrls;
-    genres:                 any[];
     href:                   string;
     id:                     string;
     images:                 Image[];
-    label:                  string;
     name:                   string;
-    popularity:             number;
     release_date:           Date;
-    release_date_precision: string;
+    release_date_precision: ReleaseDatePrecision;
     total_tracks:           number;
-    tracks:                 Tracks;
-    type:                   string;
+    type:                   AlbumTypeEnum;
     uri:                    string;
+}
+
+export enum AlbumTypeEnum {
+    Album = "album",
+    Compilation = "compilation",
+    Single = "single",
 }
 
 export interface Artist {
     external_urls: ExternalUrls;
     href:          string;
-    id:            ID;
-    name:          Name;
+    id:            string;
+    name:          string;
     type:          ArtistType;
-    uri:           URI;
+    uri:           string;
 }
 
 export interface ExternalUrls {
     spotify: string;
 }
 
-export enum ID {
-    The2AuC28ZjQyVTsiZKNgPRGs = "2auC28zjQyVTsiZKNgPRGs",
-}
-
-export enum Name {
-    Rm = "RM",
-}
-
 export enum ArtistType {
     Artist = "artist",
-}
-
-export enum URI {
-    SpotifyArtist2AuC28ZjQyVTsiZKNgPRGs = "spotify:artist:2auC28zjQyVTsiZKNgPRGs",
-}
-
-export interface Copyright {
-    text: string;
-    type: string;
-}
-
-export interface ExternalIDS {
-    upc: string;
 }
 
 export interface Image {
@@ -64,33 +57,51 @@ export interface Image {
     width:  number;
 }
 
-export interface Tracks {
+export interface SearchResults {
+    tracks: SongsSearch;
+}
+
+export interface SongsSearch {
     href:     string;
-    items:    Item[];
+    items:    SongItem[];
     limit:    number;
-    next:     null;
+    next:     string;
     offset:   number;
     previous: null;
     total:    number;
 }
 
-export interface Item {
+export interface SongItem {
+    album:             Album;
     artists:           Artist[];
-    available_markets: any[];
+    available_markets: string[];
     disc_number:       number;
     duration_ms:       number;
     explicit:          boolean;
+    external_ids:      ExternalIDS;
     external_urls:     ExternalUrls;
     href:              string;
     id:                string;
     is_local:          boolean;
     name:              string;
-    preview_url:       null;
+    popularity:        number;
+    preview_url:       string;
     track_number:      number;
     type:              ItemType;
     uri:               string;
 }
 
+
+export enum ReleaseDatePrecision {
+    Day = "day",
+    Year = "year",
+}
+
+export interface ExternalIDS {
+    isrc: string;
+}
+
 export enum ItemType {
     Track = "track",
 }
+

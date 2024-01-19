@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SpotifyService } from '../../services/spotify.service';
 import { CardsListComponent } from '../../shared/components/cards/cards-list/cards-list.component';
-import { Item } from '../../interfaces/spotify-newrealeses.interfaces';
+import { Album } from '../../interfaces/spotify-albums.interfaces';
 
 @Component({
   selector: 'app-home-page',
@@ -18,7 +18,7 @@ export class HomePageComponent implements OnInit {
     this.spotifyService.getNewReleases();
   }
 
-  get albums(): Item[]{
+  get albums(): Album[]{
     return this.spotifyService.NewReleases;
   }
 

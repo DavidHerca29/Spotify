@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component} from '@angular/core';
 import { SearchBoxComponent } from "../../shared/components/search-box/search-box.component";
 import { SpotifyService } from '../../services/spotify.service';
 import { CardsListComponent } from "../../shared/components/cards/cards-list/cards-list.component";
-import { Item } from '../../interfaces/spotify-newrealeses.interfaces';
+import { Album } from '../../interfaces/spotify-albums.interfaces';
 import { ArtistSearch } from '../../interfaces/spotify-searchArtist.interfaces';
 
 @Component({
@@ -12,33 +12,13 @@ import { ArtistSearch } from '../../interfaces/spotify-searchArtist.interfaces';
     styles: ``,
     imports: [SearchBoxComponent, CardsListComponent]
 })
-export class SearchArtistComponent implements OnInit {
+export class SearchArtistComponent {
 
   private artistId: string = '';
       
     constructor(private spotifyService: SpotifyService) { }
-  
-    ngOnInit(): void {
-      this.obtenerToken();
-    }
-  
-    obtenerToken(): void {
-      this.spotifyService.getAccessToken().subscribe(
-        (token) => {
-          if (token) {
-            console.log('Token obtenido:', token);
-            // Puedes realizar acciones adicionales con el token aquí
-          } else {
-            console.error('No se pudo obtener el token');
-          }
-        },
-        (error) => {
-          console.error('Error al obtener el token:', error);
-        }
-      );
-  }
 
-  get artistAlbums(): Item[]{
+  get artistAlbums(): Album[]{
     return this.spotifyService.artistAlbums;
   }
 

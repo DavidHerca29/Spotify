@@ -2,8 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, of, switchMap } from 'rxjs';
 import { SpotiToken } from '../interfaces/spotify-tokens.interfaces';
-import { NewRealeses, Item, Albums } from '../interfaces/spotify-newrealeses.interfaces';
-import { Album } from '../interfaces/spotify-albums.interfaces';
+import { NewRealeses, Album, Albums, SearchResults, SongsSearch, SongItem} from '../interfaces/spotify-albums.interfaces';
 import { ArtistSearch } from '../interfaces/spotify-searchArtist.interfaces';
 
 @Injectable({
@@ -11,10 +10,11 @@ import { ArtistSearch } from '../interfaces/spotify-searchArtist.interfaces';
 })
 export class SpotifyService {
   
-  public NewReleases: Item[] = [];
-  public artistAlbums: Item[] = [];
-  public tracks: Item[] = [];
-  public albums: Item[] = [];
+  public NewReleases: Album[] = [];
+  public searchSongs: Album[] = [];
+  public artistAlbums: Album[] = [];
+  public tracks: Album[] = [];
+  public albums: Album[] = [];
   private artistId: string = '';
   
   private clientId: string = '8ebc4d8ca0f8437eb99e513dc8613420';
@@ -77,7 +77,6 @@ export class SpotifyService {
         catchError(() => of(null)),
         switchMap((token: SpotiToken | null) => {
           if (token) {
-            console.log('Token obtenido:', token);
             const headers = new HttpHeaders({
               Authorization: `Bearer ${token.access_token}`,
             });
@@ -93,7 +92,6 @@ export class SpotifyService {
       .subscribe((newReleases: NewRealeses | null) => {
         if (newReleases) {
           this.NewReleases = newReleases.albums.items;
-          console.log(newReleases);
         } else {
           // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
         }
@@ -106,7 +104,6 @@ export class SpotifyService {
         catchError(() => of(null)),
         switchMap((token: SpotiToken | null) => {
           if (token) {
-            console.log('Token obtenido:', token);
             const headers = new HttpHeaders({
               Authorization: `Bearer ${token.access_token}`,
             });
@@ -122,15 +119,46 @@ export class SpotifyService {
         })
       );
   }
-  
-  getArtistAlbums(artistId: string): void {
-    console.log("Artist ID is: "+artistId);
+
+  searchForSong(songName: string): void {
     this.getAccessToken()
       .pipe(
         catchError(() => of(null)),
         switchMap((token: SpotiToken | null) => {
           if (token) {
-            console.log('Token obtenido:', token);
+            const headers = new HttpHeaders({
+              Authorization: `Bearer ${token.access_token}`,
+            });
+
+            const params = new HttpParams()
+            .set('q', songName).set('type', 'track');
+  
+            return this.httpClient
+              .get<SearchResults>(`${this.apiUrl}/search`, { headers: headers, params: params })
+              .pipe(catchError(() => of(null)));
+          } else {
+            return of(null);
+          }
+        })
+      )
+      .subscribe((songsSearch: SearchResults | null) => {
+        if (songsSearch) {
+          this.searchSongs = [];
+          for (let i = 0; i < songsSearch.tracks.items.length; i++) {
+            this.searchSongs.push(songsSearch.tracks.items[i].album);
+          }
+        } else {
+          // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
+        }
+      });
+  }
+  
+  getArtistAlbums(artistId: string): void {
+    this.getAccessToken()
+      .pipe(
+        catchError(() => of(null)),
+        switchMap((token: SpotiToken | null) => {
+          if (token) {
             const headers = new HttpHeaders({
               Authorization: `Bearer ${token.access_token}`,
             });
@@ -146,7 +174,6 @@ export class SpotifyService {
       .subscribe((artistAlbums: Albums | null) => {
         if (artistAlbums) {
           this.artistAlbums = artistAlbums.items;
-          console.log(artistAlbums);
         } else {
           // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
         }

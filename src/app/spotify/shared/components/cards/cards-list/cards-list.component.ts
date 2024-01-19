@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Item } from '../../../../interfaces/spotify-newrealeses.interfaces';
+import { Album } from '../../../../interfaces/spotify-albums.interfaces';
 import { AlbumCardComponent } from '../album-card/album-card.component';
 
 @Component({
@@ -11,5 +11,5 @@ import { AlbumCardComponent } from '../album-card/album-card.component';
 })
 export class CardsListComponent {
   @Input() 
-  public albums: Item[] = [];
+  public albums: Album[] = [];
 }
