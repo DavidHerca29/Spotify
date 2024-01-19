@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SpotifyService } from '../../../services/spotify.service';
 import { SearchHistory } from '../../../interfaces/search-history.interfaces';
 import { Router } from '@angular/router';
+import { ArtistSearch } from '../../../interfaces/spotify-searchArtist.interfaces';
 
 @Component({
   selector: 'shared-sidebar',
@@ -11,6 +12,9 @@ import { Router } from '@angular/router';
   templateUrl: './sidebar.component.html',
 })
 export class SidebarComponent {
+
+    private artistId: string = '';
+
     constructor(private spotifyService: SpotifyService, private router: Router ) { }
 
     onInit(): void {
@@ -26,10 +30,19 @@ export class SidebarComponent {
   onClickSearch(search: string, path: string) {
     // route to path and search based on given search string
     this.router.navigateByUrl(path);
-    if (path === 'search/artist') {
-        this.spotifyService.searchForArtist(search);
-    } else {
+    if (path === 'search/songs') {
         this.spotifyService.searchForSong(search);
+    } else {
+        this.spotifyService.searchForArtist(search)
+        .subscribe((artistSearch: ArtistSearch | null) => {
+            if (artistSearch) {
+              console.log("Artist ID is: "+artistSearch.artists.items[0].id);
+              this.artistId = artistSearch.artists.items[0].id;
+              this.spotifyService.getArtistAlbums(this.artistId, search);
+            } else {
+              // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
+            }
+          });;
     }
   }
 

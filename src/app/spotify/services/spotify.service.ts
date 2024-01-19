@@ -65,7 +65,7 @@ export class SpotifyService {
 
     //check if search is already in history, if that is the case, remove it and add it to the top. Else, add it to the top
     let index = this.searchHistory.findIndex(
-      (element) => element.search === search && element.path === path
+      (element) => element.search === search
     );
     if (index !== -1) {
       this.searchHistory.splice(index, 1);
