@@ -5,17 +5,25 @@ import { switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
 import { Artist } from '../../interfaces/spotify-searchArtist.interfaces';
+import { Track } from '../../interfaces/spotify-tracks.interfaces';
+import { SongsTableComponent } from '../../shared/components/songs-table/songs-table.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-album-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SongsTableComponent, RouterModule],
   templateUrl: './album-page.component.html',
-  styles: ``
+  styles: `
+  .link-no-decoration {
+    color: inherit; /* Hereda el color del texto del elemento padre */
+    text-decoration: none; /* Elimina el subrayado */
+  }
+  `
 })
 export class AlbumPageComponent {
   public artist?: Artist;
-  //public album?: Album;
+  public trackList?: Track[] = [];
 
   constructor(
     private activedRoute: ActivatedRoute,
@@ -33,6 +41,24 @@ export class AlbumPageComponent {
         if(!artist) return this.router.navigateByUrl('');
         else return this.artist = artist;
       });
+    
+    this.activedRoute.params
+      .pipe(
+        switchMap(({ id }) => this.spotifyService.getAlbumTracks(id))
+      )
+      .subscribe(album => {
+        if (!album) return this.router.navigateByUrl('');
+        else{
+          for (let i = 0; i < album.tracks.items.length; i++) {
+            album.tracks.items[i].album = album;
+          }
+          return this.trackList = album.tracks.items;
+        } 
+      });
+  }
+
+  get tracks(): Track[]{
+    return this.trackList || [];
   }
 
   goBack(): void {

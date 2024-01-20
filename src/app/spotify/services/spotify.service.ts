@@ -10,6 +10,7 @@ import {
 } from '../interfaces/spotify-albums.interfaces';
 import { ArtistSearch, Artist } from '../interfaces/spotify-searchArtist.interfaces';
 import { SearchHistory } from '../interfaces/search-history.interfaces';
+import { Tracks, Track, TrackAlbum } from '../interfaces/spotify-tracks.interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +19,7 @@ export class SpotifyService {
   public NewReleases: Album[] = [];
   public searchSongs: Album[] = [];
   public artistAlbums: Album[] = [];
-  public tracks: Album[] = [];
+  public TrackList: Track[] = [];
   public albums: Album[] = [];
   private artistId: string = '';
 
@@ -81,7 +82,6 @@ export class SpotifyService {
         catchError(() => of(null)),
         switchMap((token: SpotiToken | null) => {
           if (token) {
-            console.log(token.access_token);
             const headers = new HttpHeaders({
               Authorization: `Bearer ${token.access_token}`,
             });
@@ -218,5 +218,51 @@ export class SpotifyService {
           
         }
       });
+  }
+
+  getArtistTracks(artistId: string): Observable<Tracks | null> {
+    return this.getAccessToken()
+      .pipe(
+        catchError(() => of(null)),
+        switchMap((token: SpotiToken | null) => {
+          if (token) {
+            const headers = new HttpHeaders({
+              Authorization: `Bearer ${token.access_token}`,
+            });
+
+            const params = new HttpParams()
+              .set('market', "ES")
+
+            return this.httpClient
+              .get<Tracks>(`${this.apiUrl}/artists/${artistId}/top-tracks`, {
+                headers, params
+              })
+              .pipe(catchError(() => of(null)));
+          } else {
+            return of(null);
+          }
+        })
+      );
+  }
+
+  getAlbumTracks(albumId: string): Observable<TrackAlbum | null> {
+    return this.getAccessToken()
+      .pipe(
+        catchError(() => of(null)),
+        switchMap((token: SpotiToken | null) => {
+          if (token) {
+            const headers = new HttpHeaders({
+              Authorization: `Bearer ${token.access_token}`,
+            });
+            return this.httpClient
+              .get<TrackAlbum>(`${this.apiUrl}/albums/${albumId}`, {
+                headers
+              })
+              .pipe(catchError(() => of(null)));
+          } else {
+            return of(null);
+          }
+        })
+      );
   }
 }

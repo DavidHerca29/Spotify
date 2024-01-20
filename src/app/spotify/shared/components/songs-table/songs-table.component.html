@@ -1,0 +1,45 @@
+@if (tracks.length === 0) {
+<div class="alert alert-warning">No songs to show</div>
+}@else{
+<table class="table table-hover align-middle">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Icon</th>
+      <th>Album</th>
+      <th>Song</th>
+      <th>Preview</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (track of tracks; track $index) {
+    <tr>
+      <td>{{ $index + 1 }}</td>
+      <td>
+        <img [src]="track.album.images[0].url" height="150" width="150" />
+      </td>
+      <td>
+        <a
+          [routerLink]="['/album', track.album.id, track.album.artists[0].id]"
+          class="link-no-decoration"
+          >{{ track.album.name }}</a
+        >
+      </td>
+      <td>{{ track.name }}</td>
+      <td>
+        <iframe
+          style="border-radius: 12px"
+          [src]="getUrl(track.id)"
+          width="100%"
+          height="152"
+          frameBorder="0"
+          allowfullscreen=""
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+        ></iframe>
+      </td>
+    </tr>
+    }
+  </tbody>
+</table>
+}
