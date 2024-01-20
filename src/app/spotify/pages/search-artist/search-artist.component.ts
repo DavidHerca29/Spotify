@@ -26,11 +26,10 @@ export class SearchArtistComponent {
     this.spotifyService.searchForArtist(artistName)
       .subscribe((artistSearch: ArtistSearch | null) => {
       if (artistSearch) {
-        console.log("Artist ID is: "+artistSearch.artists.items[0].id);
         this.artistId = artistSearch.artists.items[0].id;
         this.spotifyService.getArtistAlbums(this.artistId, artistName);
       } else {
-        // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
+        
       }
     });
   }

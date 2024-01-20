@@ -8,7 +8,7 @@ import {
   Albums,
   SearchResults,
 } from '../interfaces/spotify-albums.interfaces';
-import { ArtistSearch } from '../interfaces/spotify-searchArtist.interfaces';
+import { ArtistSearch, Artist } from '../interfaces/spotify-searchArtist.interfaces';
 import { SearchHistory } from '../interfaces/search-history.interfaces';
 
 @Injectable({
@@ -63,7 +63,6 @@ export class SpotifyService {
   public organizeSearchHistory(search: string, path: string) {
     search = search.toLocaleLowerCase().trim();
 
-    //check if search is already in history, if that is the case, remove it and add it to the top. Else, add it to the top
     let index = this.searchHistory.findIndex(
       (element) => element.search === search
     );
@@ -71,8 +70,8 @@ export class SpotifyService {
       this.searchHistory.splice(index, 1);
     }
     this.searchHistory.unshift({ search, path });
+    this.searchHistory = this.searchHistory.splice(0,10);
     
-    //save history in local storage
     this.saveSearchHistory();
   }
 
@@ -82,6 +81,7 @@ export class SpotifyService {
         catchError(() => of(null)),
         switchMap((token: SpotiToken | null) => {
           if (token) {
+            console.log(token.access_token);
             const headers = new HttpHeaders({
               Authorization: `Bearer ${token.access_token}`,
             });
@@ -100,7 +100,7 @@ export class SpotifyService {
         if (newReleases) {
           this.NewReleases = newReleases.albums.items;
         } else {
-          // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
+          
         }
       });
   }
@@ -122,6 +122,26 @@ export class SpotifyService {
             .get<ArtistSearch>(`${this.apiUrl}/search`, {
               headers: headers,
               params: params,
+            })
+            .pipe(catchError(() => of(null)));
+        } else {
+          return of(null);
+        }
+      })
+    );
+  }
+
+  searchArtistById(artistId: string): Observable<Artist | null> {
+    return this.getAccessToken().pipe(
+      catchError(() => of(null)),
+      switchMap((token: SpotiToken | null) => {
+        if (token) {
+          const headers = new HttpHeaders({
+            Authorization: `Bearer ${token.access_token}`,
+          });
+          return this.httpClient
+            .get<Artist>(`${this.apiUrl}/artists/${artistId}`, {
+              headers: headers,
             })
             .pipe(catchError(() => of(null)));
         } else {
@@ -164,7 +184,7 @@ export class SpotifyService {
           }
           this.organizeSearchHistory(songName, 'search/songs');
         } else {
-          // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
+          
         }
       });
   }
@@ -195,7 +215,7 @@ export class SpotifyService {
           this.artistAlbums = artistAlbums.items;
           this.organizeSearchHistory(artistName, 'search/artist');
         } else {
-          // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
+          
         }
       });
   }

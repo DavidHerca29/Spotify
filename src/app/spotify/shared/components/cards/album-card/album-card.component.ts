@@ -2,17 +2,25 @@ import { Component, Input } from '@angular/core';
 import { Album } from '../../../../interfaces/spotify-albums.interfaces';
 import { LazyImageComponent } from "../../lazy-image/lazy-image.component";
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 
 @Component({
     selector: 'album-card',
     standalone: true,
     templateUrl: './album-card.component.html',
-    imports: [LazyImageComponent],
-    styles: `.artist-chip{
+    imports: [LazyImageComponent, RouterModule],
+    styles: `
+    .artist-chip{
       max-width: 90%;
       overflow: hidden;
       text-overflow: ellipsis;
-    }`
+    }
+    
+    .link-no-decoration {
+      color: inherit; /* Hereda el color del texto del elemento padre */
+      text-decoration: none; /* Elimina el subrayado */
+    }
+    `
 })
 export class AlbumCardComponent {
 

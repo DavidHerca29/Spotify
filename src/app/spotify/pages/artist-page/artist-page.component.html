@@ -1,1 +1,22 @@
-<p>artist-page works!</p>
+@if (!artist) {
+<div class="alert alert-info">Cargando datos</div>
+}@else{
+
+<div class="row">
+  <div class="col">
+    <img [src]="artist.images[1].url" class="rounded-circle" />
+  </div>
+  <div class="col-7">
+    <h1>
+      <strong>{{ artist.name }}</strong>
+    </h1>
+    <a href="{{ artist.external_urls.spotify }} " target="_blank"
+      >Artist page</a
+    >
+  </div>
+  <div class="col">
+    <button class="btn btn-danger float-end" (click)="goBack()">Return</button>
+  </div>
+</div>
+
+}

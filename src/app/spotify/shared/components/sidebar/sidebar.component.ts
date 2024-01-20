@@ -36,7 +36,6 @@ export class SidebarComponent {
         this.spotifyService.searchForArtist(search)
         .subscribe((artistSearch: ArtistSearch | null) => {
             if (artistSearch) {
-              console.log("Artist ID is: "+artistSearch.artists.items[0].id);
               this.artistId = artistSearch.artists.items[0].id;
               this.spotifyService.getArtistAlbums(this.artistId, search);
             } else {

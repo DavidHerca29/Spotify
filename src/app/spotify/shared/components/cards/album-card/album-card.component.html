@@ -4,12 +4,20 @@
     [alt]="albumItem.name"
   ></shared-lazy-image>
   <div class="card-body text-white">
-    <h4 class="text-white mt-2">{{ albumItem.name }}</h4>
+    <h4 class="text-white mt-2">
+      <a
+        [routerLink]="['/album', albumItem.id, albumItem.artists[0].id]"
+        class="link-no-decoration"
+        >{{ albumItem.name }}</a
+      >
+    </h4>
     <hr class="text-white" />
     <div>
       @for (artist of albumItem.artists; track $index) {
-      <div class="badge text-bg-success m-1 artist-chip">
-        {{ artist.name }}
+      <div class="badge rounded-pill text-bg-success m-1 artist-chip">
+        <a [routerLink]="['/artist', artist.id]" class="link-no-decoration">{{
+          artist.name
+        }}</a>
       </div>
       }
       <iframe
