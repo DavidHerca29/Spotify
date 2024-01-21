@@ -46,7 +46,6 @@ export class SpotifyService {
   };
 
   getAccessToken(): Observable<SpotiToken | null> {
-    console.log(this.token);
     const shouldFetchNewToken =
       this.token == null ||
       Date.now() - this.lastTokenFetchTime > this.tokenExpiration;
@@ -58,7 +57,6 @@ export class SpotifyService {
         .pipe(
           catchError(() => of(null)),
           switchMap((token: SpotiToken | null) => {
-            // Guarda el nuevo token si se obtuvo
             if (token) {
               this.token = token;
               this.lastTokenFetchTime = Date.now();

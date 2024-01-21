@@ -18,8 +18,6 @@ export class SidebarComponent {
     constructor(private spotifyService: SpotifyService, private router: Router ) { }
 
     ngOnInit(): void {
-        //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-        //Add 'implements OnInit' to the class.
         this.spotifyService.getSearchHistory();
     }
 
@@ -28,7 +26,6 @@ export class SidebarComponent {
     }
 
   onClickSearch(search: string, path: string) {
-    // route to path and search based on given search string
     this.router.navigateByUrl(path);
     if (path === 'search/songs') {
         this.spotifyService.searchForSong(search);
@@ -39,7 +36,6 @@ export class SidebarComponent {
               this.artistId = artistSearch.artists.items[0].id;
               this.spotifyService.getArtistAlbums(this.artistId, search);
             } else {
-              // Manejar el caso en que no se pudo obtener el token o la solicitud HTTP falló
             }
           });;
     }
