@@ -27,7 +27,9 @@ export class SpotifyService {
   private clientSecret: string = 'f0037e5902934b069a8c725e9e7e0e66';
   private tokenUrl: string = 'https://accounts.spotify.com/api/token';
   private idAndSecret: string = btoa(this.clientId + ':' + this.clientSecret);
-  private token: string = '';
+  private token!: SpotiToken;
+  private lastTokenFetchTime: number = 0;
+  private tokenExpiration: number = 55 * 60 * 1000;
   private apiUrl = 'https://api.spotify.com/v1';
 
   public searchHistory: SearchHistory[] = [];
@@ -44,10 +46,29 @@ export class SpotifyService {
   };
 
   getAccessToken(): Observable<SpotiToken | null> {
-    const url = this.tokenUrl;
-    return this.httpClient
-      .post<SpotiToken>(url, this.body, this.options)
-      .pipe(catchError(() => of(null)));
+    console.log(this.token);
+    const shouldFetchNewToken =
+      this.token == null ||
+      Date.now() - this.lastTokenFetchTime > this.tokenExpiration;
+
+    if (shouldFetchNewToken) {
+      const url = this.tokenUrl;
+      return this.httpClient
+        .post<SpotiToken>(url, this.body, this.options)
+        .pipe(
+          catchError(() => of(null)),
+          switchMap((token: SpotiToken | null) => {
+            // Guarda el nuevo token si se obtuvo
+            if (token) {
+              this.token = token;
+              this.lastTokenFetchTime = Date.now();
+            }
+            return of(token);
+          })
+        );
+    } else {
+      return of(this.token);
+    }
   }
 
   private saveSearchHistory() {
@@ -85,7 +106,6 @@ export class SpotifyService {
             const headers = new HttpHeaders({
               Authorization: `Bearer ${token.access_token}`,
             });
-
             return this.httpClient
               .get<NewRealeses>(`${this.apiUrl}/browse/new-releases`, {
                 headers,
